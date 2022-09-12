@@ -1,0 +1,246 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="flex items-center justify-center">
+    <div class="m-3 flex flex-col space-y-10 rounded-2xl bg-white p-6 shadow-2xl md:m-0 md:flex-row md:space-y-0 md:space-x-10 md:p-16">
+      <div class="flex flex-col space-y-10">
+        <div class="mb-4 flex flex-col space-y-3 text-center md:text-left">
+          <div class="max-w-xs text-2xl font-light">Find the air quality in your city</div>
+          <div id="noCity" class="hidden mt-3 text-red-700 text-xs">No city found for your country, please pick a different country</div>
+        </div>
+        
+        <div class="mb-4 flex flex-col space-y-3 text-center md:text-left">
+          <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Choose a country</label>
+          <select 
+            id="country"
+            onchange="UpdateCountryInput()"
+            class="bg-gray-50 border 
+              border-gray-300 
+              text-gray-900 
+              mb-6 text-sm rounded-lg 
+              focus:ring-blue-500 
+              focus:border-blue-500 
+              block w-full p-2.5 
+              opacity-70 
+              dark:border-gray-600 
+              dark:placeholder-gray-400 
+              dark:text-black 
+              dark:focus:ring-blue-500 
+              dark:focus:border-blue-500">
+            <option selected></option>
+            @foreach (var country in Model.GetCountries())
+            {
+              <option value="@country.CountryCode">@country.Name</option>
+            }
+          </select>
+          
+          <label id="labelCity" for="cities" class="hidden block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Choose a city</label>
+            <select
+                id="cities"
+                class="hidden bg-gray-50 border 
+              border-gray-300 
+              text-gray-900 
+              mb-6 text-sm rounded-lg 
+              focus:ring-blue-500 
+              focus:border-blue-500 
+              block w-full p-2.5 
+              opacity-70 
+              dark:border-gray-600 
+              dark:placeholder-gray-400 
+              dark:text-black 
+              dark:focus:ring-blue-500 
+              dark:focus:border-blue-500">
+            </select>
+            
+            <div id="sortByAsc" class="hidden flex items-center pl-4 rounded border border-gray-200 dark:border-gray-700">
+                <input checked id="SortBy-Asc" type="radio" value="asc" name="bordered-radio" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="SortBy-Desc" class="py-4 ml-2 w-full text-sm font-medium text-gray-900 dark:text-gray-300">Sort by Asc</label>
+            </div>
+            <div id="sortByDesc" class="hidden flex items-center pl-4 rounded border border-gray-200 dark:border-gray-700">
+                <input id="SortBy-Desc" type="radio" value="desc" name="bordered-radio" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="SortBy-Desc" class="py-4 ml-2 w-full text-sm font-medium text-gray-900 dark:text-gray-300">Sort by Desc</label>
+            </div>
+          
+            <div class="group">
+            <button
+                id="searchButton"
+                onclick="CallApi()"
+                class="hidden w-full transition-all duration-150 bg-blue-700 text-white border-b-8 border-b-blue-700 rounded-lg">
+                <div class="px-8 py-4 duration-150 bg-blue-500 rounded-lg group-hover:bg-blue-700 ">Search Air Quality</div>
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<div id="tableContent" class="hidden flex mt-4 overflow-x-auto relative rounded-2xl shadow-2xl">
+    <table class="w-full text-sm text-left text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+        <tr>
+            <th scope="col" class="py-3 px-6">
+                Parameter
+            </th>
+            <th scope="col" class="py-3 px-6">
+                Value
+            </th>
+            <th scope="col" class="py-3 px-6">
+                LastUpdate
+            </th>
+            <th scope="col" class="py-3 px-6">
+                Unit
+            </th>
+            <th scope="col" class="py-3 px-6">
+                City
+            </th>
+            <th scope="col" class="py-3 px-6">
+                Country
+            </th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+<div id="controlButtons" class="hidden flex flex-row mt-4 items-center justify-center">
+    
+    <button 
+        type="button"
+        onclick="DownloadTableContent()"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+        Export Data
+    </button>
+    <button 
+        type="button"
+        onclick="ClearTableContent()"
+        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+        Clear Table
+    </button>
+</div>
+
+@section Scripts
+{
+    <script>
+    function UpdateCountryInput() {
+      var countryInput = $('#country').val();
+      console.log($('#country').val().length);
+      
+      if (countryInput.length !== 0) {
+        GetCitiesForAGivenCountry(countryInput);
+      }
+      else {
+        $('#labelCity').addClass('hidden');
+        $('#cities').addClass('hidden');
+        $('#searchButton').addClass('hidden');
+        $('#sortByAsc').addClass('hidden');
+        $('#sortByDesc').addClass('hidden');
+        
+      }
+    }
+    
+    function GetCitiesForAGivenCountry(countryCode) {
+      const options = {method: 'GET', headers: {Accept: 'application/json'}};
+      var citiesSelect = $('#cities');
+      citiesSelect.empty();
+      
+      fetch(`https://api.openaq.org/v2/cities?limit=300&page=1&offset=0&sort=asc&country=${countryCode}&order_by=city`, options)
+        .then(response => response.json())
+        .then(response => {
+          var responseResult = response["results"];
+          
+          if (responseResult.length !== 0) {
+            $('#noCity').addClass('hidden');
+            responseResult.forEach((x) => {
+              citiesSelect.append(`<option value="${x.city}">${x.city}</option>`);
+            })
+            UpdateCityInput(responseResult.length);
+          } 
+          else {
+            UpdateCityInput(0);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+    
+    function UpdateCityInput(inputLength) {
+      if (inputLength !== 0) {
+        $('#searchButton').removeClass('hidden');
+        $('#labelCity').removeClass('hidden');
+        $('#cities').removeClass('hidden');
+        $('#sortByAsc').removeClass('hidden');
+        $('#sortByDesc').removeClass('hidden');
+      } 
+      else {
+        $('#noCity').removeClass('hidden');
+        $('#labelCity').addClass('hidden');
+        $('#cities').addClass('hidden');
+        $('#searchButton').addClass('hidden');
+        $('#sortByAsc').addClass('hidden');
+        $('#sortByDesc').addClass('hidden');
+      }
+    }
+    UpdateCountryInput();
+    
+    function CallApi(){
+        var sortBy = $('#SortBy-Asc:checked').val() ?? $('#SortBy-Desc:checked').val();
+        var city = $('#cities').val();
+        var country = $('#country').val();
+        
+        $.ajax({
+        url: `?handler=WriteResponse&countryCode=${country}&city=${city}&sortBy=${sortBy}`,
+        success: function (data) {
+            var convertStringToJson = JSON.parse(data);
+            var results = convertStringToJson['results'];
+            var measurements = results[0]['measurements'];
+            var tableRow = $('#tableBody');
+            
+            $.each(measurements, (i) => {
+                var date = new Date(measurements[i].lastUpdated).toLocaleDateString('en-GB'); 
+                tableRow
+                    .append(`<tr class="bg-white border-b">
+                        <td class="py-4 px-6">${measurements[i].parameter}</td>
+                        <td class="py-4 px-6">${measurements[i].value}</td>
+                        <td class="py-4 px-6">${date}</td>
+                        <td class="py-4 px-6">${measurements[i].unit}</td>
+                        <td class="py-4 px-6">${city}</td>
+                        <td class="py-4 px-6">${country}</td>
+                    </tr>`);                
+            })
+            
+            $('#tableContent').removeClass('hidden');
+            $('#controlButtons').removeClass('hidden');
+            
+        },
+        error: function (error) {
+            alert('Something went wrong please contact the Admin')
+            console.log(`Error: ${error.message}`);
+        }
+        })
+    }
+    
+    function ClearTableContent() {
+        $('#tableContent').addClass('hidden');
+        $('#tableBody').empty();
+        $('#controlButtons').addClass('hidden');
+        UpdateCountryInput();
+        
+    }
+    
+    function DownloadTableContent() {
+        try {
+          $('table').table2csv();
+        } catch (e) {
+            alert('Something went wrong please contact the Admin')
+            console.log(e.error.message)
+        }
+    }
+    
+  </script>
+
+}

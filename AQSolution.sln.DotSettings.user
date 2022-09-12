@@ -1,0 +1,9 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.4\ref\net6.0\System.Runtime.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ph_br\.nuget\packages\geoessential.client\1.0.0\lib\net5.0\GeoEssential.Client.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ph_br\.nuget\packages\countrydata\3.78.0\lib\netstandard2.0\CountryData.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ph_br\.nuget\packages\ngeo\1.9.0\lib\net40\NGeo.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ph_br\.nuget\packages\geoapi.core\1.7.5\lib\netstandard2.0\GeoAPI.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\ph_br\.nuget\packages\iso3166\1.0.4\lib\netstandard2.0\ISO3166.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
